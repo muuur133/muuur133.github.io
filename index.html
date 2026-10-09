@@ -54,10 +54,13 @@
       const message = document.getElementById('message');
 
       btn.addEventListener('click', () => {
-        // Меняем фон на белый
+        // 1. Сразу убираем кнопку из видимости
+        btn.style.display = 'none';
+
+        // 2. Сразу меняем фон на белый
         document.body.style.backgroundColor = '#ffffff';
 
-        // Через 3 секунды показываем надпись
+        // 3. Через 3 секунды показываем надпись
         setTimeout(() => {
           message.style.opacity = '1';
         }, 3000);
@@ -65,3 +68,4 @@
     </script>
   </body>
 </html>
+
