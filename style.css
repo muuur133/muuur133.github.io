@@ -1,0 +1,55 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  body {
+    height: 100vh;
+    background-color: #000000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+    position: relative;
+    transition: background-color 0.5s ease; /* Плавная смена фона тоже выглядит эффектно */
+  }
+  
+  button {
+    padding: 20px 40px;
+    font-size: 24px;
+    color: #ffffff;
+    background-color: #ff0000;
+    border: none;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: transform 0.2s, box-shadow 0.2s, opacity 0.3s;
+    z-index: 10;
+  }
+  
+  button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
+  }
+  
+  #message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #000000;
+    font-size: 48px;
+    font-weight: bold;
+    opacity: 0;
+    transition: opacity 1s ease-out;
+    text-align: center;
+    pointer-events: none; /* Чтобы текст не мешал кликам, если вдруг перекрывает область */
+    z-index: 5;
+  }
+  
+  /* Класс, который JS будет добавлять для показа текста */
+  #message.visible {
+    opacity: 1;
+  }
+  
