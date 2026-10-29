@@ -1,5 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-analytics.js";
+// ⚠️ Добавлены недостающие импорты для авторизации
+import { getAuth, GithubAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-auth.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBqnrIPnoMm8ZQKP8iPgW1jpQdzWtYBLb8",
@@ -10,15 +12,14 @@ const firebaseConfig = {
     messagingSenderId: "594721313944",
     appId: "1:594721313944:web:e4792dc4198f6583d1aced",
     measurementId: "G-DHLKG8FFLM"
-  };
+};
 
-// ⚠️ Ключевой шаг: инициализация Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
+
 const githubButton = document.getElementById("github-login-btn");
 
 githubButton.addEventListener("click", () => {
-  // Передаём app в getAuth
   const auth = getAuth(app);
   const provider = new GithubAuthProvider();
 
