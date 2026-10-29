@@ -2,10 +2,14 @@ import { getAuth, GithubAuthProvider, signInWithPopup } from "firebase/auth";
 import { initializeApp } from "firebase/app";
 
 const firebaseConfig = {
-  apiKey: "...",
-  authDomain: "...",
-  projectId: "...",
-  // и т.д.
+  apiKey: "AIzaSyBqnrIPnoMm8ZQKP8iPgW1jpQdzWtYBLb8",
+  authDomain: "muuur1242.firebaseapp.com",
+  databaseURL: "https://muuur1242-default-rtdb.firebaseio.com",
+  projectId: "muuur1242",
+  storageBucket: "muuur1242.firebasestorage.app",
+  messagingSenderId: "594721313944",
+  appId: "1:594721313944:web:e4792dc4198f6583d1aced",
+   measurementId: "G-DHLKG8FFLM"
 };
 // Находим кнопку на странице
 const githubButton = document.getElementById("github-login-btn");
