@@ -1,5 +1,12 @@
 import { getAuth, GithubAuthProvider, signInWithPopup } from "firebase/auth";
+import { initializeApp } from "firebase/app";
 
+const firebaseConfig = {
+  apiKey: "...",
+  authDomain: "...",
+  projectId: "...",
+  // и т.д.
+};
 // Находим кнопку на странице
 const githubButton = document.getElementById("github-login-btn");
 
