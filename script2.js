@@ -5,7 +5,8 @@ import {
   GithubAuthProvider,
   GoogleAuthProvider,
   signInWithPopup,
-  onAuthStateChanged
+  onAuthStateChanged,
+  signOut
 } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-auth.js";
 import {
   getDatabase,
@@ -63,6 +64,16 @@ const googleButton = document.getElementById("google-login-btn");
 if (googleButton) {
   googleButton.addEventListener("click", () => {
     loginWithProvider(new GoogleAuthProvider(), "Google");
+  });
+}
+
+// Выход из аккаунта
+const logoutButton = document.getElementById("logout-btn");
+if (logoutButton) {
+  logoutButton.addEventListener("click", () => {
+    signOut(auth)
+      .then(() => console.log("Пользователь вышел"))
+      .catch((error) => console.error("Ошибка выхода:", error));
   });
 }
 
