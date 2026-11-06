@@ -7,6 +7,8 @@ import {
   signInWithPopup,
   onAuthStateChanged,
   signOut,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
   sendSignInLinkToEmail,
   isSignInWithEmailLink,
   signInWithEmailLink
@@ -35,83 +37,115 @@ const analytics = getAnalytics(app);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
-// ================= ВХОД =================
+// ================= ВХОД ЧЕРЕЗ ПРОВАЙДЕРОВ =================
 
-// Универсальная функция входа через любой провайдер
 function loginWithProvider(provider, providerName) {
   signInWithPopup(auth, provider)
     .then((result) => {
       const credential = provider.constructor.credentialFromResult(result);
-      const token = credential?.accessToken;
-      const user = result.user;
-      console.log(`Пользователь вошел через ${providerName}:`, user);
-      console.log("Токен:", token);
+      console.log(`Пользователь вошел через ${providerName}:`, result.user);
+      console.log("Токен:", credential?.accessToken);
     })
     .catch((error) => {
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      console.error(`Ошибка входа через ${providerName}:`, errorCode, errorMessage);
+      console.error(`Ошибка входа через ${providerName}:`, error.code, error.message);
     });
 }
 
-// GitHub
-const githubButton = document.getElementById("github-login-btn");
-if (githubButton) {
-  githubButton.addEventListener("click", () => {
-    loginWithProvider(new GithubAuthProvider(), "GitHub");
+document.getElementById("github-login-btn")?.addEventListener("click", () => {
+  loginWithProvider(new GithubAuthProvider(), "GitHub");
+});
+
+document.getElementById("google-login-btn")?.addEventListener("click", () => {
+  loginWithProvider(new GoogleAuthProvider(), "Google");
+});
+
+// ================= ПАНЕЛЬ EMAIL =================
+
+const emailToggleBtn = document.getElementById("email-toggle-btn");
+const emailPanel = document.getElementById("email-panel");
+
+if (emailToggleBtn && emailPanel) {
+  emailToggleBtn.addEventListener("click", () => {
+    emailPanel.classList.toggle("open");
   });
 }
 
-// Google
-const googleButton = document.getElementById("google-login-btn");
-if (googleButton) {
-  googleButton.addEventListener("click", () => {
-    loginWithProvider(new GoogleAuthProvider(), "Google");
-  });
-}
+const emailInput = document.getElementById("email-link-input");
+const passwordInput = document.getElementById("password-input");
+const emailMsg = document.getElementById("email-panel-msg");
 
-// ================= ВХОД ПО EMAIL-ССЫЛКЕ (PASSWORDLESS) =================
+// Регистрация по email + пароль
+document.getElementById("email-register-btn")?.addEventListener("click", async () => {
+  const email = emailInput.value.trim();
+  const password = passwordInput.value;
 
-const sendLinkBtn = document.getElementById("send-link-btn");
-const emailLinkInput = document.getElementById("email-link-input");
-const emailLinkMsg = document.getElementById("email-link-msg");
+  if (!email || !password) {
+    emailMsg.textContent = "Введите email и пароль";
+    return;
+  }
 
-// 1. Отправка ссылки для входа
-if (sendLinkBtn) {
-  sendLinkBtn.addEventListener("click", async () => {
-    const email = emailLinkInput.value.trim();
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    emailMsg.textContent = "Аккаунт создан! Теперь можно войти.";
+    console.log("Зарегистрирован:", userCredential.user);
+  } catch (error) {
+    console.error("Ошибка регистрации:", error);
+    emailMsg.textContent = "Ошибка: " + error.message;
+  }
+});
 
-    if (!email) {
-      emailLinkMsg.textContent = "Введите email";
-      return;
-    }
+// Вход по email + пароль
+document.getElementById("email-password-login-btn")?.addEventListener("click", async () => {
+  const email = emailInput.value.trim();
+  const password = passwordInput.value;
 
-    // URL, куда вернётся пользователь после клика по ссылке.
-    // ВАЖНО: этот домен должен быть в Authorized domains в Firebase.
-    const actionCodeSettings = {
-      url: "https://muuur133.github.io/",
-      handleCodeInApp: true
-    };
+  if (!email || !password) {
+    emailMsg.textContent = "Введите email и пароль";
+    return;
+  }
 
-    try {
-      await sendSignInLinkToEmail(auth, email, actionCodeSettings);
-      // Сохраняем email, чтобы не спрашивать его снова при возврате
-      window.localStorage.setItem("emailForSignIn", email);
-      emailLinkMsg.textContent = "Ссылка для входа отправлена! Проверьте почту.";
-      console.log("Ссылка отправлена на:", email);
-    } catch (error) {
-      console.error("Ошибка отправки ссылки:", error);
-      emailLinkMsg.textContent = "Ошибка: " + error.message;
-    }
-  });
-}
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    console.log("Вход по паролю выполнен:", userCredential.user);
+    // onAuthStateChanged автоматически покажет интерфейс
+  } catch (error) {
+    console.error("Ошибка входа:", error);
+    emailMsg.textContent = "Ошибка: " + error.message;
+  }
+});
 
-// 2. Завершение входа, если пользователь вернулся по ссылке
+// ================= ВХОД БЕЗ ПАРОЛЯ (EMAIL LINK) =================
+
+// 1. Отправка ссылки
+document.getElementById("passwordless-btn")?.addEventListener("click", async () => {
+  const email = emailInput.value.trim();
+
+  if (!email) {
+    emailMsg.textContent = "Введите email";
+    return;
+  }
+
+  const actionCodeSettings = {
+    url: "https://muuur133.github.io/", // замените, если домен другой
+    handleCodeInApp: true
+  };
+
+  try {
+    await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+    window.localStorage.setItem("emailForSignIn", email);
+    emailMsg.textContent = "Ссылка для входа отправлена! Проверьте почту.";
+    console.log("Ссылка отправлена на:", email);
+  } catch (error) {
+    console.error("Ошибка отправки ссылки:", error);
+    emailMsg.textContent = "Ошибка: " + error.message;
+  }
+});
+
+// 2. Завершение входа по ссылке
 if (isSignInWithEmailLink(auth, window.location.href)) {
   let email = window.localStorage.getItem("emailForSignIn");
 
   if (!email) {
-    // Пользователь открыл ссылку на другом устройстве — просим подтвердить email
     email = window.prompt("Подтвердите ваш Email для входа");
   }
 
@@ -120,33 +154,26 @@ if (isSignInWithEmailLink(auth, window.location.href)) {
       .then((result) => {
         window.localStorage.removeItem("emailForSignIn");
         console.log("Вход по ссылке выполнен:", result.user);
-        if (emailLinkMsg) emailLinkMsg.textContent = "Вы успешно вошли!";
-        // onAuthStateChanged сработает автоматически и покажет интерфейс
       })
       .catch((error) => {
         console.error("Ошибка входа по ссылке:", error);
-        if (emailLinkMsg) emailLinkMsg.textContent = "Ошибка входа: " + error.message;
       });
   }
 }
 
 // ================= ВЫХОД =================
 
-const logoutButton = document.getElementById("logout-btn");
-if (logoutButton) {
-  logoutButton.addEventListener("click", () => {
-    signOut(auth)
-      .then(() => console.log("Пользователь вышел"))
-      .catch((error) => console.error("Ошибка выхода:", error));
-  });
-}
+document.getElementById("logout-btn")?.addEventListener("click", () => {
+  signOut(auth)
+    .then(() => console.log("Пользователь вышел"))
+    .catch((error) => console.error("Ошибка выхода:", error));
+});
 
 // ================= БАЗА ДАННЫХ =================
 
 const itemsList = document.getElementById("items-list");
 const addForm = document.getElementById("add-form");
 
-// Слушаем изменение состояния авторизации
 onAuthStateChanged(auth, (user) => {
   if (user) {
     document.body.classList.add("logged-in");
@@ -155,10 +182,11 @@ onAuthStateChanged(auth, (user) => {
   } else {
     document.body.classList.remove("logged-in");
     if (itemsList) itemsList.innerHTML = "";
+    // Скрываем панель email после выхода
+    if (emailPanel) emailPanel.classList.remove("open");
   }
 });
 
-// Функция загрузки данных в реальном времени
 function loadItems() {
   const itemsRef = ref(db, "items");
 
@@ -176,5 +204,29 @@ function loadItems() {
     } else {
       itemsList.innerHTML = "<li>Пока нет записей</li>";
     }
+  });
+}
+
+if (addForm) {
+  addForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById("item-name").value;
+    const desc = document.getElementById("item-desc").value;
+
+    const itemsRef = ref(db, "items");
+    push(itemsRef, {
+      name: name,
+      desc: desc,
+      author: auth.currentUser.uid,
+      createdAt: serverTimestamp()
+    })
+      .then(() => {
+        console.log("Запись добавлена");
+        addForm.reset();
+      })
+      .catch((error) => {
+        console.error("Ошибка добавления:", error);
+      });
   });
 }
