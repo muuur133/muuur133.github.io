@@ -47,7 +47,29 @@ body::after {
   z-index: 0;
 }
 
-/* ===== Контейнеры ===== */
+/* ===== Заголовок «Вход» ===== */
+
+#login-title {
+  position: fixed;
+  top: 8%;                 /* поднят выше, чтобы не пересекаться с кнопками */
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 28px;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  color: var(--neon-cyan);
+  text-shadow: 0 0 12px var(--neon-cyan), 0 0 30px var(--neon-cyan);
+  z-index: 8;
+  transition: opacity 0.5s ease;
+  white-space: nowrap;
+}
+
+body.logged-in #login-title {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ===== Контейнер входа ===== */
 
 #auth-block {
   position: fixed;
@@ -59,16 +81,22 @@ body::after {
   gap: 18px;
   align-items: center;
   z-index: 10;
+  max-height: 80vh;        /* не вылезаем за экран */
+  overflow-y: auto;        /* если не влезает — скролл */
+  padding: 10px;
   transition: top 0.8s cubic-bezier(0.65, 0, 0.35, 1),
               transform 0.8s cubic-bezier(0.65, 0, 0.35, 1);
 }
 
-/* Когда пользователь вошёл — кнопки уезжают наверх */
+/* После входа — кнопки уезжают наверх */
 body.logged-in #auth-block {
   top: 0;
   transform: translate(-50%, 0);
-  padding: 20px;
+  padding: 16px;
+  max-height: 40vh;
 }
+
+/* ===== Блок данных после входа ===== */
 
 #app-content {
   position: fixed;
@@ -208,7 +236,7 @@ button:active {
   font-size: 14px;
 }
 
-/* Кнопка "Войти без пароля" — розовый неон, менее акцентная */
+/* Кнопка "Войти без пароля" — розовый неон */
 #passwordless-btn {
   color: var(--neon-pink);
   border-color: var(--neon-pink);
@@ -221,12 +249,26 @@ button:active {
   box-shadow: 0 0 20px var(--neon-pink), inset 0 0 15px rgba(255, 43, 214, 0.3);
 }
 
+/* Кнопка регистрации — бирюзовый неон */
+#email-register-btn {
+  color: var(--neon-cyan);
+  border-color: var(--neon-cyan);
+}
+
 #email-panel-msg {
   font-size: 13px;
   color: var(--neon-cyan);
   text-align: center;
   min-height: 18px;
   letter-spacing: 1px;
+}
+
+/* ===== Скрываем кнопки соцсетей, когда панель email открыта ===== */
+
+#auth-block:has(#email-panel.open) #github-login-btn,
+#auth-block:has(#email-panel.open) #google-login-btn,
+#auth-block:has(#email-panel.open) #email-toggle-btn {
+  display: none;
 }
 
 /* ===== Форма ===== */
@@ -321,140 +363,4 @@ h3 {
 
 #items-list::-webkit-scrollbar-track {
   background: rgba(255, 43, 214, 0.1);
-}
-
-/* Приветственный заголовок «Вход» скрываем после входа */
-#login-title {
-  position: fixed;
-  top: 20%;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 32px;
-  letter-spacing: 6px;
-  text-transform: uppercase;
-  color: var(--neon-cyan);
-  text-shadow: 0 0 12px var(--neon-cyan), 0 0 30px var(--neon-cyan);
-  z-index: 8;
-  transition: opacity 0.5s ease;
-}
-
-body.logged-in #login-title {
-  opacity: 0;
-  pointer-events: none;
-}
-/* ===== Обновлённый auth-block ===== */
-#auth-block {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  align-items: center;
-  z-index: 10;
-  transition: top 0.8s cubic-bezier(0.65, 0, 0.35, 1),
-              transform 0.8s cubic-bezier(0.65, 0, 0.35, 1);
-}
-
-body.logged-in #auth-block {
-  top: 0;
-  transform: translate(-50%, 0);
-  padding: 20px;
-}
-
-/* ===== Кнопка "Войти через Email" ===== */
-#email-toggle-btn {
-  color: var(--neon-purple);
-  border-color: var(--neon-purple);
-  box-shadow: 0 0 8px var(--neon-purple), inset 0 0 8px rgba(168, 85, 255, 0.2);
-  text-shadow: 0 0 8px var(--neon-purple);
-}
-
-#email-toggle-btn:hover {
-  background: rgba(168, 85, 255, 0.12);
-  box-shadow: 0 0 20px var(--neon-purple), inset 0 0 15px rgba(168, 85, 255, 0.3);
-}
-
-/* ===== Панель входа через Email ===== */
-#email-panel {
-  display: none;
-  flex-direction: column;
-  gap: 14px;
-  padding: 24px;
-  width: min(90vw, 360px);
-  background: rgba(10, 5, 25, 0.85);
-  border: 2px solid var(--neon-purple);
-  border-radius: 8px;
-  box-shadow: 0 0 25px rgba(168, 85, 255, 0.5), inset 0 0 20px rgba(168, 85, 255, 0.1);
-  backdrop-filter: blur(6px);
-  z-index: 11;
-}
-
-#email-panel.open {
-  display: flex;
-}
-
-#email-panel h3 {
-  font-size: 14px;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  color: var(--neon-purple);
-  text-shadow: 0 0 10px var(--neon-purple);
-  text-align: center;
-  margin-bottom: 4px;
-}
-
-#email-panel input {
-  padding: 12px 14px;
-  font-size: 15px;
-  font-family: 'Courier New', monospace;
-  color: var(--neon-cyan);
-  background: rgba(0, 0, 0, 0.5);
-  border: 2px solid var(--neon-cyan);
-  border-radius: 4px;
-  outline: none;
-  box-shadow: inset 0 0 8px rgba(0, 240, 255, 0.2);
-  transition: box-shadow 0.25s ease;
-}
-
-#email-panel input::placeholder {
-  color: rgba(0, 240, 255, 0.5);
-  letter-spacing: 1px;
-}
-
-#email-panel input:focus {
-  box-shadow: 0 0 15px var(--neon-cyan), inset 0 0 10px rgba(0, 240, 255, 0.3);
-}
-
-#email-panel button {
-  padding: 12px 20px;
-  font-size: 14px;
-}
-
-/* Кнопка "Войти без пароля" — розовый неон */
-#passwordless-btn {
-  color: var(--neon-pink);
-  border-color: var(--neon-pink);
-  box-shadow: 0 0 8px var(--neon-pink), inset 0 0 8px rgba(255, 43, 214, 0.2);
-  text-shadow: 0 0 8px var(--neon-pink);
-}
-
-#passwordless-btn:hover {
-  background: rgba(255, 43, 214, 0.1);
-  box-shadow: 0 0 20px var(--neon-pink), inset 0 0 15px rgba(255, 43, 214, 0.3);
-}
-
-/* Кнопка регистрации — бирюзовый неон */
-#email-register-btn {
-  color: var(--neon-cyan);
-  border-color: var(--neon-cyan);
-}
-
-#email-panel-msg {
-  font-size: 13px;
-  color: var(--neon-cyan);
-  text-align: center;
-  min-height: 18px;
-  letter-spacing: 1px;
 }
