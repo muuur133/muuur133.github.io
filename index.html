@@ -10,10 +10,19 @@
 <body>
   <h2 id="login-title">Вход</h2>
 
-  <!-- Кнопки входа -->
+  <!-- Блок входа: кнопки соцсетей + вход по email-ссылке -->
   <div id="auth-block">
-    <button id="github-login-btn">GitHub</button>
-    <button id="google-login-btn">Google</button>
+    <div id="social-block">
+      <button id="github-login-btn">GitHub</button>
+      <button id="google-login-btn">Google</button>
+    </div>
+
+    <div id="email-link-block">
+      <h3>Вход без пароля</h3>
+      <input type="email" id="email-link-input" placeholder="Введите ваш Email" required>
+      <button id="send-link-btn">Отправить ссылку для входа</button>
+      <p id="email-link-msg"></p>
+    </div>
   </div>
 
   <!-- Блок, который виден только после входа -->
