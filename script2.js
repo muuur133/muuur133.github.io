@@ -4,8 +4,16 @@ import {
   getAuth,
   GithubAuthProvider,
   GoogleAuthProvider,
-  signInWithPopup
+  signInWithPopup,
+  onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-auth.js";
+import {
+  getDatabase,
+  ref,
+  push,
+  onValue,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/13.1.0/firebase-database.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBqnrIPnoMm8ZQKP8iPgW1jpQdzWtYBLb8",
@@ -21,6 +29,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth(app);
+const db = getDatabase(app);
+
+// ================= ВХОД =================
 
 // Универсальная функция входа через любой провайдер
 function loginWithProvider(provider, providerName) {
@@ -52,5 +63,70 @@ const googleButton = document.getElementById("google-login-btn");
 if (googleButton) {
   googleButton.addEventListener("click", () => {
     loginWithProvider(new GoogleAuthProvider(), "Google");
+  });
+}
+
+// ================= БАЗА ДАННЫХ =================
+
+const appContent = document.getElementById('app-content');
+const itemsList = document.getElementById('items-list');
+const addForm = document.getElementById('add-form');
+
+// Слушаем изменение состояния авторизации
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    // Пользователь вошёл — показываем интерфейс
+    if (appContent) appContent.style.display = 'block';
+    console.log('Авторизован:', user.uid);
+
+    loadItems();
+  } else {
+    // Пользователь вышел — скрываем и очищаем
+    if (appContent) appContent.style.display = 'none';
+    if (itemsList) itemsList.innerHTML = '';
+  }
+});
+
+// Функция загрузки данных в реальном времени
+function loadItems() {
+  const itemsRef = ref(db, 'items');
+
+  onValue(itemsRef, (snapshot) => {
+    if (!itemsList) return;
+    itemsList.innerHTML = '';
+    const data = snapshot.val();
+
+    if (data) {
+      Object.entries(data).forEach(([key, item]) => {
+        const li = document.createElement('li');
+        li.textContent = `${item.name}: ${item.desc}`;
+        itemsList.appendChild(li);
+      });
+    } else {
+      itemsList.innerHTML = '<li>Пока нет записей</li>';
+    }
+  });
+}
+
+// Обработка отправки формы
+if (addForm) {
+  addForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById('item-name').value;
+    const desc = document.getElementById('item-desc').value;
+
+    const itemsRef = ref(db, 'items');
+    push(itemsRef, {
+      name: name,
+      desc: desc,
+      author: auth.currentUser.uid,
+      createdAt: serverTimestamp()
+    }).then(() => {
+      console.log('Запись добавлена');
+      addForm.reset();
+    }).catch((error) => {
+      console.error('Ошибка добавления:', error);
+    });
   });
 }
