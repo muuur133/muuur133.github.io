@@ -1,6 +1,11 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-analytics.js";
-import { getAuth, GithubAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-auth.js";
+import {
+  getAuth,
+  GithubAuthProvider,
+  GoogleAuthProvider,
+  signInWithPopup
+} from "https://www.gstatic.com/firebasejs/13.1.0/firebase-auth.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBqnrIPnoMm8ZQKP8iPgW1jpQdzWtYBLb8",
@@ -15,23 +20,37 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
+const auth = getAuth(app);
 
-const githubButton = document.getElementById("github-login-btn");
-
-githubButton.addEventListener("click", () => {
-  const auth = getAuth(app);
-  const provider = new GithubAuthProvider();
-
+// Универсальная функция входа через любой провайдер
+function loginWithProvider(provider, providerName) {
   signInWithPopup(auth, provider)
     .then((result) => {
-      const credential = GithubAuthProvider.credentialFromResult(result);
-      const token = credential.accessToken;
+      const credential = provider.constructor.credentialFromResult(result);
+      const token = credential?.accessToken;
       const user = result.user;
-      console.log("Пользователь вошел:", user);
+      console.log(`Пользователь вошел через ${providerName}:`, user);
+      console.log("Токен:", token);
     })
     .catch((error) => {
       const errorCode = error.code;
       const errorMessage = error.message;
-      console.error("Ошибка входа:", errorCode, errorMessage);
+      console.error(`Ошибка входа через ${providerName}:`, errorCode, errorMessage);
     });
-});
+}
+
+// GitHub
+const githubButton = document.getElementById("github-login-btn");
+if (githubButton) {
+  githubButton.addEventListener("click", () => {
+    loginWithProvider(new GithubAuthProvider(), "GitHub");
+  });
+}
+
+// Google
+const googleButton = document.getElementById("google-login-btn");
+if (googleButton) {
+  googleButton.addEventListener("click", () => {
+    loginWithProvider(new GoogleAuthProvider(), "Google");
+  });
+}
