@@ -2,14 +2,26 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Вход через GitHub и Google</title>
+  <title>Вход и данные</title>
 </head>
 <body>
+  <!-- Кнопки входа (уже есть) -->
   <button id="github-login-btn">Войти через GitHub</button>
   <button id="google-login-btn">Войти через Google</button>
 
-  <!-- Подключаем ваш script.js -->
-  <script type="module" src="script2.js"></script>
+  <!-- Блок, который виден только после входа -->
+  <div id="app-content" style="display:none; margin-top: 20px;">
+    <h3>Добавить запись</h3>
+    <form id="add-form">
+      <input type="text" id="item-name" placeholder="Название" required>
+      <input type="text" id="item-desc" placeholder="Описание" required>
+      <button type="submit">Добавить</button>
+    </form>
 
+    <h3>Список данных</h3>
+    <ul id="items-list"></ul>
+  </div>
+
+  <script type="module" src="script2.js"></script>
 </body>
 </html>
