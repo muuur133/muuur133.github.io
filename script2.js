@@ -79,21 +79,21 @@ if (logoutButton) {
 
 // ================= БАЗА ДАННЫХ =================
 
-const appContent = document.getElementById('app-content');
 const itemsList = document.getElementById('items-list');
 const addForm = document.getElementById('add-form');
 
 // Слушаем изменение состояния авторизации
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    // Пользователь вошёл — показываем интерфейс
-    if (appContent) appContent.style.display = 'block';
+    // Пользователь вошёл — добавляем класс на body (CSS сам покажет форму
+    // и плавно перевезёт кнопки входа наверх)
+    document.body.classList.add('logged-in');
     console.log('Авторизован:', user.uid);
 
     loadItems();
   } else {
-    // Пользователь вышел — скрываем и очищаем
-    if (appContent) appContent.style.display = 'none';
+    // Пользователь вышел — убираем класс и очищаем список
+    document.body.classList.remove('logged-in');
     if (itemsList) itemsList.innerHTML = '';
   }
 });
