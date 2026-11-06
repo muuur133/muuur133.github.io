@@ -3,23 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Вход и данные</title>
+  <title>Neon Auth</title>
   <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h2>Вход</h2>
+  <h2 id="login-title">Вход</h2>
 
   <!-- Кнопки входа -->
-  <button id="github-login-btn">Войти через GitHub</button>
-  <button id="google-login-btn">Войти через Google</button>
+  <div id="auth-block">
+    <button id="github-login-btn">GitHub</button>
+    <button id="google-login-btn">Google</button>
+  </div>
 
   <!-- Блок, который виден только после входа -->
-  <div id="app-content" style="display:none; margin-top: 20px;">
-    <!-- Кнопка выхода -->
-    <button id="logout-btn">Выйти из аккаунта</button>
+  <div id="app-content">
+    <button id="logout-btn">Выйти</button>
 
-    <h3>Добавить запись</h3>
     <form id="add-form">
+      <h3>Добавить запись</h3>
       <input type="text" id="item-name" placeholder="Название" required>
       <input type="text" id="item-desc" placeholder="Описание" required>
       <button type="submit">Добавить</button>
@@ -29,7 +31,6 @@
     <ul id="items-list"></ul>
   </div>
 
-  <!-- Подключаем ваш script2.js -->
   <script type="module" src="script2.js"></script>
 </body>
 </html>
