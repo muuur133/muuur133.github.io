@@ -4,7 +4,8 @@ import {
   getAuth,
   GithubAuthProvider,
   GoogleAuthProvider,
-  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   onAuthStateChanged,
   signOut,
   createUserWithEmailAndPassword,
@@ -37,15 +38,12 @@ const analytics = getAnalytics(app);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
-// ================= ВХОД ЧЕРЕЗ ПРОВАЙДЕРОВ =================
+// ================= ВХОД ЧЕРЕЗ ПРОВАЙДЕРОВ (РЕДИРЕКТ) =================
 
 function loginWithProvider(provider, providerName) {
-  signInWithPopup(auth, provider)
-    .then((result) => {
-      const credential = provider.constructor.credentialFromResult(result);
-      console.log(`Пользователь вошел через ${providerName}:`, result.user);
-      console.log("Токен:", credential?.accessToken);
-    })
+  // signInWithRedirect перенаправляет всю страницу на страницу входа провайдера.
+  // Не требует загрузки apis.google.com во всплывающем окне.
+  signInWithRedirect(auth, provider)
     .catch((error) => {
       console.error(`Ошибка входа через ${providerName}:`, error.code, error.message);
     });
@@ -58,6 +56,17 @@ document.getElementById("github-login-btn")?.addEventListener("click", () => {
 document.getElementById("google-login-btn")?.addEventListener("click", () => {
   loginWithProvider(new GoogleAuthProvider(), "Google");
 });
+
+// Обработка результата после возврата с редиректа
+getRedirectResult(auth)
+  .then((result) => {
+    if (result) {
+      console.log("Вход после редиректа выполнен:", result.user);
+    }
+  })
+  .catch((error) => {
+    console.error("Ошибка после редиректа:", error.code, error.message);
+  });
 
 // ================= ПАНЕЛЬ EMAIL =================
 
