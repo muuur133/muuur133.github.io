@@ -6,7 +6,10 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   onAuthStateChanged,
-  signOut
+  signOut,
+  sendSignInLinkToEmail,
+  isSignInWithEmailLink,
+  signInWithEmailLink
 } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-auth.js";
 import {
   getDatabase,
@@ -67,7 +70,68 @@ if (googleButton) {
   });
 }
 
-// Выход из аккаунта
+// ================= ВХОД ПО EMAIL-ССЫЛКЕ (PASSWORDLESS) =================
+
+const sendLinkBtn = document.getElementById("send-link-btn");
+const emailLinkInput = document.getElementById("email-link-input");
+const emailLinkMsg = document.getElementById("email-link-msg");
+
+// 1. Отправка ссылки для входа
+if (sendLinkBtn) {
+  sendLinkBtn.addEventListener("click", async () => {
+    const email = emailLinkInput.value.trim();
+
+    if (!email) {
+      emailLinkMsg.textContent = "Введите email";
+      return;
+    }
+
+    // URL, куда вернётся пользователь после клика по ссылке.
+    // ВАЖНО: этот домен должен быть в Authorized domains в Firebase.
+    const actionCodeSettings = {
+      url: "https://muuur133.github.io/",
+      handleCodeInApp: true
+    };
+
+    try {
+      await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+      // Сохраняем email, чтобы не спрашивать его снова при возврате
+      window.localStorage.setItem("emailForSignIn", email);
+      emailLinkMsg.textContent = "Ссылка для входа отправлена! Проверьте почту.";
+      console.log("Ссылка отправлена на:", email);
+    } catch (error) {
+      console.error("Ошибка отправки ссылки:", error);
+      emailLinkMsg.textContent = "Ошибка: " + error.message;
+    }
+  });
+}
+
+// 2. Завершение входа, если пользователь вернулся по ссылке
+if (isSignInWithEmailLink(auth, window.location.href)) {
+  let email = window.localStorage.getItem("emailForSignIn");
+
+  if (!email) {
+    // Пользователь открыл ссылку на другом устройстве — просим подтвердить email
+    email = window.prompt("Подтвердите ваш Email для входа");
+  }
+
+  if (email) {
+    signInWithEmailLink(auth, email, window.location.href)
+      .then((result) => {
+        window.localStorage.removeItem("emailForSignIn");
+        console.log("Вход по ссылке выполнен:", result.user);
+        if (emailLinkMsg) emailLinkMsg.textContent = "Вы успешно вошли!";
+        // onAuthStateChanged сработает автоматически и покажет интерфейс
+      })
+      .catch((error) => {
+        console.error("Ошибка входа по ссылке:", error);
+        if (emailLinkMsg) emailLinkMsg.textContent = "Ошибка входа: " + error.message;
+      });
+  }
+}
+
+// ================= ВЫХОД =================
+
 const logoutButton = document.getElementById("logout-btn");
 if (logoutButton) {
   logoutButton.addEventListener("click", () => {
@@ -79,65 +143,38 @@ if (logoutButton) {
 
 // ================= БАЗА ДАННЫХ =================
 
-const itemsList = document.getElementById('items-list');
-const addForm = document.getElementById('add-form');
+const itemsList = document.getElementById("items-list");
+const addForm = document.getElementById("add-form");
 
 // Слушаем изменение состояния авторизации
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    // Пользователь вошёл — добавляем класс на body (CSS сам покажет форму
-    // и плавно перевезёт кнопки входа наверх)
-    document.body.classList.add('logged-in');
-    console.log('Авторизован:', user.uid);
-
+    document.body.classList.add("logged-in");
+    console.log("Авторизован:", user.uid);
     loadItems();
   } else {
-    // Пользователь вышел — убираем класс и очищаем список
-    document.body.classList.remove('logged-in');
-    if (itemsList) itemsList.innerHTML = '';
+    document.body.classList.remove("logged-in");
+    if (itemsList) itemsList.innerHTML = "";
   }
 });
 
 // Функция загрузки данных в реальном времени
 function loadItems() {
-  const itemsRef = ref(db, 'items');
+  const itemsRef = ref(db, "items");
 
   onValue(itemsRef, (snapshot) => {
     if (!itemsList) return;
-    itemsList.innerHTML = '';
+    itemsList.innerHTML = "";
     const data = snapshot.val();
 
     if (data) {
       Object.entries(data).forEach(([key, item]) => {
-        const li = document.createElement('li');
+        const li = document.createElement("li");
         li.textContent = `${item.name}: ${item.desc}`;
         itemsList.appendChild(li);
       });
     } else {
-      itemsList.innerHTML = '<li>Пока нет записей</li>';
+      itemsList.innerHTML = "<li>Пока нет записей</li>";
     }
-  });
-}
-
-// Обработка отправки формы
-if (addForm) {
-  addForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-
-    const name = document.getElementById('item-name').value;
-    const desc = document.getElementById('item-desc').value;
-
-    const itemsRef = ref(db, 'items');
-    push(itemsRef, {
-      name: name,
-      desc: desc,
-      author: auth.currentUser.uid,
-      createdAt: serverTimestamp()
-    }).then(() => {
-      console.log('Запись добавлена');
-      addForm.reset();
-    }).catch((error) => {
-      console.error('Ошибка добавления:', error);
-    });
   });
 }
