@@ -10,18 +10,21 @@
 <body>
   <h2 id="login-title">Вход</h2>
 
-  <!-- Блок входа: кнопки соцсетей + вход по email-ссылке -->
+  <!-- Блок входа -->
   <div id="auth-block">
-    <div id="social-block">
-      <button id="github-login-btn">GitHub</button>
-      <button id="google-login-btn">Google</button>
-    </div>
+    <button id="github-login-btn">GitHub</button>
+    <button id="google-login-btn">Google</button>
+    <button id="email-toggle-btn">Войти через Email</button>
 
-    <div id="email-link-block">
-      <h3>Вход без пароля</h3>
-      <input type="email" id="email-link-input" placeholder="Введите ваш Email" required>
-      <button id="send-link-btn">Отправить ссылку для входа</button>
-      <p id="email-link-msg"></p>
+    <!-- Панель входа через Email (скрыта, показывается классом .open) -->
+    <div id="email-panel">
+      <h3>Вход через Email</h3>
+      <input type="email" id="email-link-input" placeholder="Email" required>
+      <input type="password" id="password-input" placeholder="Пароль" required>
+      <button id="email-password-login-btn">Войти с паролем</button>
+      <button id="passwordless-btn">Войти без пароля</button>
+      <button id="email-register-btn">Зарегистрироваться</button>
+      <p id="email-panel-msg"></p>
     </div>
   </div>
 
