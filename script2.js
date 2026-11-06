@@ -74,6 +74,15 @@ const emailInput = document.getElementById("email-link-input");
 const passwordInput = document.getElementById("password-input");
 const emailMsg = document.getElementById("email-panel-msg");
 
+// Кнопка «Назад» — закрывает панель email и сбрасывает сообщение
+const emailBackBtn = document.getElementById("email-back-btn");
+if (emailBackBtn && emailPanel) {
+  emailBackBtn.addEventListener("click", () => {
+    emailPanel.classList.remove("open");
+    if (emailMsg) emailMsg.textContent = "";
+  });
+}
+
 // Регистрация по email + пароль
 document.getElementById("email-register-btn")?.addEventListener("click", async () => {
   const email = emailInput.value.trim();
