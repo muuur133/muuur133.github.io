@@ -181,29 +181,29 @@ button:active {
 
 .github-login-row {
   display: flex;
-  gap: 10px;
+  flex-direction: column;
+  gap: 12px;
   align-items: stretch;
-  justify-content: center;
   width: min(90vw, 360px);
 }
 
-/* Выпадающий список выбора способа входа */
+/* Выпадающий список выбора способа входа — в стиле #email-panel */
 #github-login-mode {
-  flex: 1;
-  min-width: 0;
-  padding: 12px 14px;
+  width: 100%;
+  padding: 14px 38px 14px 16px;
   font-size: 13px;
   font-family: 'Courier New', monospace;
   font-weight: bold;
   letter-spacing: 1px;
   text-transform: uppercase;
   color: var(--neon-cyan);
-  background: rgba(0, 0, 0, 0.5);
-  border: 2px solid var(--neon-cyan);
-  border-radius: 4px;
+  background-color: rgba(10, 5, 25, 0.85);
+  border: 2px solid var(--neon-purple);
+  border-radius: 8px;
   outline: none;
   cursor: pointer;
-  box-shadow: 0 0 8px var(--neon-cyan), inset 0 0 8px rgba(0, 240, 255, 0.2);
+  box-shadow: 0 0 25px rgba(168, 85, 255, 0.5), inset 0 0 20px rgba(168, 85, 255, 0.1);
+  backdrop-filter: blur(6px);
   transition: all 0.25s ease;
   appearance: none;
   -webkit-appearance: none;
@@ -212,20 +212,21 @@ button:active {
     linear-gradient(45deg, transparent 50%, var(--neon-cyan) 50%),
     linear-gradient(135deg, var(--neon-cyan) 50%, transparent 50%);
   background-position:
-    calc(100% - 18px) calc(50% - 2px),
-    calc(100% - 12px) calc(50% - 2px);
+    calc(100% - 20px) calc(50% - 2px),
+    calc(100% - 14px) calc(50% - 2px);
   background-size: 6px 6px, 6px 6px;
   background-repeat: no-repeat;
-  padding-right: 34px;
 }
 
 #github-login-mode:hover {
-  background-color: rgba(0, 240, 255, 0.1);
-  box-shadow: 0 0 20px var(--neon-cyan), inset 0 0 15px rgba(0, 240, 255, 0.3);
+  background-color: rgba(168, 85, 255, 0.15);
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 25px rgba(0, 240, 255, 0.45), inset 0 0 20px rgba(0, 240, 255, 0.15);
 }
 
 #github-login-mode:focus {
-  box-shadow: 0 0 20px var(--neon-cyan), inset 0 0 12px rgba(0, 240, 255, 0.35);
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 25px rgba(0, 240, 255, 0.6), inset 0 0 20px rgba(0, 240, 255, 0.2);
 }
 
 /* Опции внутри select — тёмный фон, чтобы читалось */
@@ -233,12 +234,13 @@ button:active {
   background: #0a0519;
   color: var(--neon-cyan);
   font-family: 'Courier New', monospace;
+  padding: 8px;
 }
 
-/* Кнопка GitHub внутри строки — не растягивается */
+/* Кнопка GitHub внутри строки — на всю ширину, как кнопки в #email-panel */
 .github-login-row #github-login-btn {
-  flex: 0 0 auto;
-  padding: 12px 20px;
+  width: 100%;
+  padding: 14px 20px;
   font-size: 16px;
 }
 
