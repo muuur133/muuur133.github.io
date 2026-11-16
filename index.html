@@ -12,7 +12,15 @@
 
   <!-- Блок входа -->
   <div id="auth-block">
-    <button id="github-login-btn">GitHub</button>
+    <!-- GitHub: выбор способа входа + кнопка -->
+    <div class="github-login-row">
+      <select id="github-login-mode" title="Способ входа через GitHub">
+        <option value="redirect">Без всплывающего окна (редирект)</option>
+        <option value="popup">С всплывающим окном</option>
+      </select>
+      <button id="github-login-btn">GitHub</button>
+    </div>
+
     <button id="google-login-btn">Google</button>
     <button id="email-toggle-btn">Войти через Email</button>
 
