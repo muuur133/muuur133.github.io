@@ -42,10 +42,9 @@ const db = getDatabase(app);
 // ================= ВХОД ЧЕРЕЗ ПРОВАЙДЕРОВ (РЕДИРЕКТ) =================
 
 function loginWithProvider(provider, providerName) {
-  // signInWithRedirect перенаправляет всю страницу на страницу входа провайдера.
-  // Не требует загрузки apis.google.com во всплывающем окне.
   signInWithRedirect(auth, provider)
     .catch((error) => {
+      console.error(`КОД ОШИБКИ (${providerName} redirect):`, error.code);
       console.error(`Ошибка входа через ${providerName}:`, error.code, error.message);
     });
 }
@@ -63,6 +62,7 @@ document.getElementById("github-login-btn")?.addEventListener("click", async () 
       console.log("Вход через GitHub (popup) выполнен:", result.user);
       // onAuthStateChanged сам обновит интерфейс
     } catch (error) {
+      console.error("КОД ОШИБКИ (GitHub popup):", error.code);
       console.error("Ошибка входа через GitHub (popup):", error.code, error.message);
 
       switch (error.code) {
@@ -78,15 +78,19 @@ document.getElementById("github-login-btn")?.addEventListener("click", async () 
         case "auth/operation-not-allowed":
           alert("GitHub-провайдер не включён в Firebase Console → Authentication → Sign-in method.");
           break;
+        case "auth/unauthorized-domain":
+          alert("Домен не авторизован в Firebase Console → Authentication → Sign-in method → Authorized domains.");
+          break;
         default:
-          alert("Ошибка входа: " + error.message);
+          alert("Ошибка входа: " + error.code + " — " + error.message);
       }
     }
   } else {
     // Редирект — без всплывающего окна
     signInWithRedirect(auth, provider).catch((error) => {
+      console.error("КОД ОШИБКИ (GitHub redirect):", error.code);
       console.error("Ошибка входа через GitHub (redirect):", error.code, error.message);
-      alert("Ошибка входа: " + error.message);
+      alert("Ошибка входа: " + error.code + " — " + error.message);
     });
   }
 });
@@ -116,7 +120,9 @@ getRedirectResult(auth)
     }
   })
   .catch((error) => {
+    console.error("КОД ОШИБКИ (getRedirectResult):", error.code);
     console.error("Ошибка после редиректа:", error.code, error.message);
+    alert("Ошибка после редиректа: " + error.code + " — " + error.message);
   });
 
 // ================= ПАНЕЛЬ EMAIL =================
@@ -158,8 +164,9 @@ document.getElementById("email-register-btn")?.addEventListener("click", async (
     emailMsg.textContent = "Аккаунт создан! Теперь можно войти.";
     console.log("Зарегистрирован:", userCredential.user);
   } catch (error) {
+    console.error("КОД ОШИБКИ (register):", error.code);
     console.error("Ошибка регистрации:", error);
-    emailMsg.textContent = "Ошибка: " + error.message;
+    emailMsg.textContent = "Ошибка: " + error.code + " — " + error.message;
   }
 });
 
@@ -178,8 +185,9 @@ document.getElementById("email-password-login-btn")?.addEventListener("click", a
     console.log("Вход по паролю выполнен:", userCredential.user);
     // onAuthStateChanged автоматически покажет интерфейс
   } catch (error) {
+    console.error("КОД ОШИБКИ (email login):", error.code);
     console.error("Ошибка входа:", error);
-    emailMsg.textContent = "Ошибка: " + error.message;
+    emailMsg.textContent = "Ошибка: " + error.code + " — " + error.message;
   }
 });
 
@@ -205,8 +213,9 @@ document.getElementById("passwordless-btn")?.addEventListener("click", async () 
     emailMsg.textContent = "Ссылка для входа отправлена! Проверьте почту.";
     console.log("Ссылка отправлена на:", email);
   } catch (error) {
+    console.error("КОД ОШИБКИ (passwordless send):", error.code);
     console.error("Ошибка отправки ссылки:", error);
-    emailMsg.textContent = "Ошибка: " + error.message;
+    emailMsg.textContent = "Ошибка: " + error.code + " — " + error.message;
   }
 });
 
@@ -225,7 +234,9 @@ if (isSignInWithEmailLink(auth, window.location.href)) {
         console.log("Вход по ссылке выполнен:", result.user);
       })
       .catch((error) => {
+        console.error("КОД ОШИБКИ (passwordless signIn):", error.code);
         console.error("Ошибка входа по ссылке:", error);
+        alert("Ошибка входа по ссылке: " + error.code + " — " + error.message);
       });
   }
 }
@@ -235,7 +246,10 @@ if (isSignInWithEmailLink(auth, window.location.href)) {
 document.getElementById("logout-btn")?.addEventListener("click", () => {
   signOut(auth)
     .then(() => console.log("Пользователь вышел"))
-    .catch((error) => console.error("Ошибка выхода:", error));
+    .catch((error) => {
+      console.error("КОД ОШИБКИ (logout):", error.code);
+      console.error("Ошибка выхода:", error);
+    });
 });
 
 // ================= БАЗА ДАННЫХ =================
@@ -295,6 +309,7 @@ if (addForm) {
         addForm.reset();
       })
       .catch((error) => {
+        console.error("КОД ОШИБКИ (add item):", error.code);
         console.error("Ошибка добавления:", error);
       });
   });
