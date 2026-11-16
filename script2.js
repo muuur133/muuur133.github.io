@@ -5,6 +5,7 @@ import {
   GithubAuthProvider,
   GoogleAuthProvider,
   signInWithRedirect,
+  signInWithPopup,
   getRedirectResult,
   onAuthStateChanged,
   signOut,
@@ -49,9 +50,59 @@ function loginWithProvider(provider, providerName) {
     });
 }
 
-document.getElementById("github-login-btn")?.addEventListener("click", () => {
-  loginWithProvider(new GithubAuthProvider(), "GitHub");
+// ================= ВХОД ЧЕРЕЗ GITHUB: POPUP ИЛИ REDIRECT =================
+
+document.getElementById("github-login-btn")?.addEventListener("click", async () => {
+  const modeSelect = document.getElementById("github-login-mode");
+  const mode = modeSelect ? modeSelect.value : "redirect";
+  const provider = new GithubAuthProvider();
+
+  if (mode === "popup") {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      console.log("Вход через GitHub (popup) выполнен:", result.user);
+      // onAuthStateChanged сам обновит интерфейс
+    } catch (error) {
+      console.error("Ошибка входа через GitHub (popup):", error.code, error.message);
+
+      switch (error.code) {
+        case "auth/popup-blocked":
+          alert("Браузер заблокировал всплывающее окно. Разрешите popup для сайта или выберите «Без всплывающего окна».");
+          break;
+        case "auth/popup-closed-by-user":
+          // Пользователь сам закрыл — молчим
+          break;
+        case "auth/cancelled-popup-request":
+          // Было открыто несколько popup подряд — игнорируем
+          break;
+        case "auth/operation-not-allowed":
+          alert("GitHub-провайдер не включён в Firebase Console → Authentication → Sign-in method.");
+          break;
+        default:
+          alert("Ошибка входа: " + error.message);
+      }
+    }
+  } else {
+    // Редирект — без всплывающего окна
+    signInWithRedirect(auth, provider).catch((error) => {
+      console.error("Ошибка входа через GitHub (redirect):", error.code, error.message);
+      alert("Ошибка входа: " + error.message);
+    });
+  }
 });
+
+// Восстановить выбор режима входа из localStorage
+const githubModeSelect = document.getElementById("github-login-mode");
+if (githubModeSelect) {
+  const saved = localStorage.getItem("githubLoginMode");
+  if (saved === "popup" || saved === "redirect") githubModeSelect.value = saved;
+
+  githubModeSelect.addEventListener("change", () => {
+    localStorage.setItem("githubLoginMode", githubModeSelect.value);
+  });
+}
+
+// ================= ВХОД ЧЕРЕЗ GOOGLE (РЕДИРЕКТ) =================
 
 document.getElementById("google-login-btn")?.addEventListener("click", () => {
   loginWithProvider(new GoogleAuthProvider(), "Google");
